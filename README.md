@@ -1,6 +1,6 @@
 ### Overview
 
-Modular, Lazy.nvim-based Neovim configuration designed for multi-language development, with extra polish for LSP, DAP, testing, and formatting.
+A modular Neovim configuration built around Lazy.nvim, with support for LSP, DAP, testing, formatting, and multiple programming languages.
 
 <br>
 
@@ -178,13 +178,6 @@ _plugins-keymaps.lua_ serves the purpose of storing keymaps that are meant to be
 
 ---
 
-### Requirements
-- **Neovim**: recommended >= 0.9 (some plugins/features assume modern Neovim; if you run into nil handlers or runtime API differences, try upgrading).
-
-- **A POSIX shell & standard utilities:** (sh and curl) for setting up the environment.
-
-- **(Optional) Java JDK:** JDK 17+ recommended.
-
 ### Installation
 
 Clone the repo:
@@ -207,7 +200,7 @@ Open Neovim:
 nvim
 ```
 
-Lazy.nvim will install plugins. Mason will ensure required tools are present. This may take a few minutes.
+Lazy.nvim will install plugins. Mason will ensure required tools are present. This may take a few minutes. After the installation is complete, it may be necessary to restart Neovim so all the changes can be applied.
 
 ### Support
 
