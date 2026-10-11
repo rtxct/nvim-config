@@ -5,6 +5,9 @@ local M = {
 	opts = {
 		follow = false,
 		focus = true,
+    win = {
+        size = 0.6,
+    },
 		preview = {
 			type = "split",
 			relative = "win",

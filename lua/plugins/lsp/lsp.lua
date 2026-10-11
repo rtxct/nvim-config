@@ -101,12 +101,12 @@ local M = {
     vim.diagnostic.config(vim.deepcopy(opts.diagnostics))
 
     -- Capabilities
-    local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+    local has_blink, blink = pcall(require, "blink.cmp")
     local capabilities = vim.tbl_deep_extend(
       "force",
       {},
       vim.lsp.protocol.make_client_capabilities(),
-      has_cmp and cmp_nvim_lsp.default_capabilities() or {},
+      has_blink and blink.get_lsp_capabilities() or {},
       opts.capabilities or {}
     )
 
@@ -123,17 +123,31 @@ local M = {
 
     local servers = ensure_installed.lsp
 
+    -- Global LspAttach to disable formatting and ensure conform takes over
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+      callback = function(ev)
+        local client = vim.lsp.get_client_by_id(ev.data.client_id)
+        if client then
+          client.server_capabilities.documentFormattingProvider = false
+          client.server_capabilities.documentRangeFormattingProvider = false
+        end
+      end,
+    })
+
     if #servers > 0 then
       for _, server in ipairs(servers) do
-        local ok, custom_opts = pcall(require, "plugins.lsp.settings." .. server)
-        local server_opts = vim.tbl_deep_extend(
-          "force",
-          { handlers = handlers, capabilities = vim.deepcopy(capabilities) },
-          ok and custom_opts or {}
-        )
+        if server ~= "jdtls" then
+          local ok, custom_opts = pcall(require, "plugins.lsp.settings." .. server)
+          local server_opts = vim.tbl_deep_extend(
+            "force",
+            { handlers = handlers, capabilities = vim.deepcopy(capabilities) },
+            ok and custom_opts or {}
+          )
 
-        vim.lsp.config[server] = server_opts
-        vim.lsp.enable(vim.lsp.config[server])
+          vim.lsp.config(server, server_opts)
+          vim.lsp.enable(server)
+        end
       end
     end
   end,

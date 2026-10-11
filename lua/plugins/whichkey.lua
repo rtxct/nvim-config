@@ -22,13 +22,13 @@ local M = {
     win = {
       no_overlap = true,
       border = "rounded",
-      width = 100,
+      width = 90,
       height = 7,
       padding = { 1, 1 },
     },
     layout = {
-      height = { min = 3, max = 5 },
-      width = { min = 1, max = 30 },
+      height = { min = 2, max = 5 },
+      width = { min = 0, max = 30 },
       align = "center",
       spacing = 3,
     },

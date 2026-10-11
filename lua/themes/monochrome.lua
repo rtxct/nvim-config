@@ -13,7 +13,7 @@ local M = {
 				normal = "none",
 				telescope = "none",
 				menu = lackluster.color.gray3,
-				popup = "default",
+				popup = "none",
 				tabline = "none",
 				tabline_fill = "none",
 			},
@@ -27,6 +27,8 @@ local M = {
 		vim.api.nvim_set_hl(0, "TabLineSel", { fg = "#ffffff", bg = "NONE" })
 		vim.api.nvim_set_hl(0, "StatusLine", { fg = nil, bg = "NONE" })
 		vim.api.nvim_set_hl(0, "StatusLineNC", { fg = nil, bg = "NONE" })
+		vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+		vim.api.nvim_set_hl(0, "FloatBorder", { bg = "NONE" })
 	end,
 }
 

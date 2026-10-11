@@ -27,20 +27,6 @@ create_autocmd("BufWinEnter", {
 	command = [[ if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif ]],
 })
 
--- Remove whitespaces on save
--- create_autocmd("BufWritePre", {
---     desc = "remove whitespaces on save",
---     pattern = "*",
---     command = "%s/\\s\\+$//e",
--- })
-
--- Prevent auto-commenting on a new line
--- create_autocmd({ "BufEnter", "FileType" }, {
---     desc = "don't auto comment new line",
---     pattern = "*",
---     command = "setlocal formatoptions-=c formatoptions-=r formatoptions-=o",
--- })
-
 -- Auto-resize split windows
 create_autocmd("VimResized", {
 	desc = "auto resize splited windows",
@@ -88,6 +74,20 @@ create_autocmd("RecordingLeave", {
 	end,
 })
 
+-- Set CSV viewer delimiter
+create_autocmd("BufReadPost", {
+	desc = "Auto setup csv viewer delimiter based on file",
+  pattern = "*.csv",
+  callback = function()
+    local line = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1] or ""
+    local delimiter = line:find(";") and ";" or ","
+
+    require("csvview").setup({
+      parser = { delimiter = delimiter }
+    })
+  end,
+})
+
 -- Modify NeoVim messages to only show file name instead of fullpath upon saving.
 create_autocmd("BufWritePost", {
 	desc = "Only shows file name upon saving",
@@ -99,3 +99,18 @@ create_autocmd("BufWritePost", {
 		vim.cmd("echo '\"" .. filename .. '" ' .. lines .. "L, " .. size .. "B written'")
 	end,
 })
+
+-- Remove whitespaces on save
+-- create_autocmd("BufWritePre", {
+--     desc = "remove whitespaces on save",
+--     pattern = "*",
+--     command = "%s/\\s\\+$//e",
+-- })
+
+-- Prevent auto-commenting on a new line
+-- create_autocmd({ "BufEnter", "FileType" }, {
+--     desc = "don't auto comment new line",
+--     pattern = "*",
+--     command = "setlocal formatoptions-=c formatoptions-=r formatoptions-=o",
+-- })
+

@@ -1,48 +1,95 @@
 #!/bin/bash
 
 set -e
-shopt -s globstar
 
-# Set git hooks path
-git config core.hooksPath hooks
+# Colors for terminal output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
 
-# Make everything executable
-chmod +x ./hooks/**/*
-chmod +x ./scripts/**/*
+info() { echo -e "${BLUE}${BOLD}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}${BOLD}[OK]${NC} $1"; }
+warn() { echo -e "${YELLOW}${BOLD}[WARN]${NC} $1"; }
+error() { echo -e "${RED}${BOLD}[ERROR]${NC} $1"; }
 
-# Ask for setup
-cat <<EOF
-The current setup (if there is any) will be renamed to:
-"nvim-bak"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TARGET_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
 
-And be kept inside .config directory, so no configuration will be lost.
+echo -e "${BOLD}========================================${NC}"
+echo -e "${BOLD}         Neovim Setup Script            ${NC}"
+echo -e "${BOLD}========================================${NC}\n"
 
-Setup Neovim? (y/n)
-EOF
+# 1. Dependency checks
+info "Checking essential dependencies..."
+if ! command -v nvim >/dev/null 2>&1; then
+  warn "Neovim is not installed or not in PATH."
+else
+  NVIM_VERSION=$(nvim --version | head -n 1)
+  success "Found $NVIM_VERSION"
+fi
 
-read setup
-if [[ "$setup" =~ ^[nN]([oO])?$ ]]; then
+if ! command -v git >/dev/null 2>&1; then
+  error "git is required but not installed."
+  exit 1
+fi
+
+# 2. Setup git hooks if directory exists
+if [ -d "$SCRIPT_DIR/hooks" ]; then
+  git -C "$SCRIPT_DIR" config core.hooksPath hooks
+  chmod +x "$SCRIPT_DIR"/hooks/* 2>/dev/null || true
+  success "Configured git hooks"
+fi
+
+# 3. Confirmation prompt
+echo ""
+echo -e "This will install the Neovim configuration to:"
+echo -e "  ${BOLD}$TARGET_DIR${NC}"
+if [ -d "$TARGET_DIR" ]; then
+  echo -e "Existing configuration will be backed up safely.\n"
+fi
+
+read -rp "Proceed with setup? (y/N): " confirm
+if [[ ! "$confirm" =~ ^[yY]([eE][sS])?$ ]]; then
+  info "Setup aborted by user."
   exit 0
 fi
 
-PATH_NVIM="$HOME/.config/nvim"
-
-# Backup existing config
-if [ -d "$PATH_NVIM" ]; then
-  mv "$PATH_NVIM" "$HOME/.config/nvim-bak/"
+# 4. Backup existing config
+if [ -d "$TARGET_DIR" ]; then
+  BACKUP_DIR="${TARGET_DIR}-bak-$(date +%Y%m%d_%H%M%S)"
+  info "Backing up existing configuration to: $BACKUP_DIR"
+  mv "$TARGET_DIR" "$BACKUP_DIR"
+  success "Backup created at $BACKUP_DIR"
 fi
 
-# Copy new config
-mkdir -p "$PATH_NVIM"
-cp -r ./init.lua ./lazy-lock.json ./scripts ./lua "$PATH_NVIM/"
+# 5. Deploy new configuration
+info "Installing configuration..."
+mkdir -p "$TARGET_DIR"
 
-# Ask about clearing cache
-read -p "Should Neovim cache and storage be erased (.cache and .local)? (y/n): " erase
-if [[ "$erase" =~ ^[nN]([oO])?$ ]]; then
-  exit 0
+# Copy core configuration files and directories
+for item in init.lua lazy-lock.json lua ftplugin; do
+  if [ -e "$SCRIPT_DIR/$item" ]; then
+    cp -r "$SCRIPT_DIR/$item" "$TARGET_DIR/"
+  fi
+done
+
+success "Configuration successfully copied to $TARGET_DIR"
+
+# 6. Optional cache/state cleanup
+echo ""
+read -rp "Do you want to clean Neovim cache and plugin storage (~/.cache/nvim and ~/.local/share/nvim)? (y/N): " clean_cache
+if [[ "$clean_cache" =~ ^[yY]([eE][sS])?$ ]]; then
+  info "Cleaning cache and data directories..."
+  rm -rf "${XDG_DATA_HOME:-$HOME/.local/share}/nvim"
+  rm -rf "${XDG_STATE_HOME:-$HOME/.local/state}/nvim"
+  rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/nvim"
+  success "Cache and storage wiped clean for fresh start."
+else
+  info "Kept existing cache and plugins."
 fi
 
-rm -rf "$HOME/.local/share/nvim/"
-rm -rf "$HOME/.cache/nvim/"
-
-echo "Neovim setup complete."
+echo ""
+success "Setup complete! Launch Neovim with 'nvim' to initialize plugins."

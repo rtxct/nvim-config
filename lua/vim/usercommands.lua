@@ -3,13 +3,16 @@ local function create_user_command(name, fn, opts)
   vim.api.nvim_create_user_command(name, fn, opts)
 end
 
--- Copy all lines matching the current selection
+-- Create the user command
 create_user_command("CopyMatchedLines", function()
+  -- 1. Safely grab the visually selected text
   local saved_v = vim.fn.getreg('v')
 
+  -- 'gv' re-selects the last visual selection, '"vy' yanks it into register 'v'
   vim.cmd('silent normal! gv"vy')
   local selected_text = vim.fn.getreg('v')
 
+  -- Restore register 'v' to avoid cluttering your registers
   vim.fn.setreg('v', saved_v)
 
   if not selected_text or selected_text == "" then
@@ -17,22 +20,29 @@ create_user_command("CopyMatchedLines", function()
     return
   end
 
+  -- If a multiline selection is made, grab just the first line for the search
   selected_text = vim.split(selected_text, '\n')[1]
 
+  -- 2. Fetch all lines in the current buffer
   local all_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
   local matched_lines = {}
 
+  -- 3. Search every line for the exact string
   for _, line in ipairs(all_lines) do
+    -- 'true' as the 4th argument disables Lua pattern matching.
+    -- This ensures special characters like '.', '-', or '*' are treated literally.
     if string.find(line, selected_text, 1, true) then
       table.insert(matched_lines, line)
     end
   end
 
+  -- 4. Join the matched lines and copy them
   if #matched_lines > 0 then
+    -- Add a trailing newline so it pastes cleanly as full lines
     local final_text = table.concat(matched_lines, "\n") .. "\n"
 
-    vim.fn.setreg('+', final_text)
-    vim.fn.setreg('"', final_text)
+    vim.fn.setreg('+', final_text)     -- Copy to system clipboard
+    vim.fn.setreg('"', final_text)     -- Copy to Neovim unnamed register
 
     print(string.format("Copied %d lines containing '%s'", #matched_lines, selected_text))
   else

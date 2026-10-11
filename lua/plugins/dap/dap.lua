@@ -27,15 +27,9 @@ local M = {
     end
 
     -- Hook into DAP events to place/update signs
-    dap.listeners.after.event_initialized["dapui_config"] = function(session, body)
+    dap.listeners.after.event_initialized["dapui_config"] = function()
       if opts.ui.auto_open then
         dapui.open()
-      end
-
-      -- Place stopped sign at current line
-      local frame = session.current_frame
-      if frame then
-        place_sign("DapStopped", frame.line, vim.api.nvim_get_current_buf())
       end
     end
 
@@ -53,9 +47,9 @@ local M = {
     -- Keymaps
     local map = vim.keymap.set
     local silent = { silent = true }
-    map("n", "<F5>", dap.continue, silent)
-    map("n", "<F10>", dap.step_over, silent)
-    map("n", "<F11>", dap.step_into, silent)
+    map("n", "<F9>", dap.continue, silent)
+    map("n", "<F8>", dap.step_over, silent)
+    map("n", "<F7>", dap.step_into, silent)
     map("n", "<F12>", dap.step_out, silent)
 
     -- Highlights
@@ -92,28 +86,24 @@ local M = {
       },
     })
 
-    dap.configurations.java = {
-      {
-        name = "Debug Launch (2GB)",
-        type = "java",
-        request = "launch",
-        vmArgs = "" .. "-Xmx2g ",
-      },
-      {
-        name = "Debug Attach (5005)",
-        type = "java",
-        request = "attach",
-        hostName = "127.0.0.1",
-        port = 5005,
-      },
-      {
-        name = "Debug Attach (5005 - IPV6)",
-        type = "java",
-        request = "attach",
-        hostName = "::1",
-        port = 5005,
-      },
-    }
+    -- Dynamically load language configurations from plugins/dap/settings
+    local dap_settings_path = vim.fn.stdpath("config") .. "/lua/plugins/dap/settings"
+    if vim.fn.isdirectory(dap_settings_path) == 1 then
+      for _, file in ipairs(vim.fn.readdir(dap_settings_path)) do
+        if file:match("%.lua$") then
+          local lang = file:gsub("%.lua$", "")
+          local ok, config = pcall(require, "plugins.dap.settings." .. lang)
+          if ok and type(config) == "table" then
+            if config.adapters then
+              dap.adapters[lang] = config.adapters
+            end
+            if config.configurations then
+              dap.configurations[lang] = config.configurations
+            end
+          end
+        end
+      end
+    end
   end,
 }
 

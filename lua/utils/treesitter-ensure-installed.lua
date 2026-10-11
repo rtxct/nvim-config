@@ -7,6 +7,7 @@ local M = {
 	"javascript",
 	"typescript",
 	"java",
+	"python",
 	"tsx",
 
 	"bash",

@@ -6,7 +6,7 @@ vim.opt.smartindent = true
 vim.opt.timeoutlen = 200
 vim.opt.undofile = true
 vim.opt.updatetime = 300
-vim.opt.shortmess:append("A")
+vim.opt.shortmess:append("AI")
 
 -- Searching
 vim.opt.ignorecase = true
@@ -51,12 +51,11 @@ vim.opt.tabline = "%t"
 -- Hidden Characters
 vim.opt.list = true
 vim.opt.listchars:append("space:.")
--- vim.opt.listchars:append "eol:↴"
+-- vim.opt.listchars:append("eol:↴")
 
--- Spell Chck
+-- Spell Check
 vim.opt.spell = true
 vim.opt.spelllang = "en_us,pt_br"
 
--- Disable netrw (for better file explorer alternatives like nvim-tree)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1

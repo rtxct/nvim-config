@@ -36,14 +36,14 @@ local M = {
 
     vim.api.nvim_set_keymap(
       "n",
-      "f",
+      "s",
       '<Cmd>lua require("leap").leap({ target = vim.fn.expand("<cword>") })<CR>',
       { noremap = true, silent = true }
     )
 
     vim.api.nvim_set_keymap(
       "n",
-      "F",
+      "S",
       '<Cmd>lua require("leap").leap({ target = vim.fn.expand("<cword>"), backward = true })<CR>',
       { noremap = true, silent = true }
     )

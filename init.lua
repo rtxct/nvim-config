@@ -30,7 +30,3 @@ for _, dir in ipairs(directories_to_scan) do
 		require(module)
 	end
 end
-
--- Setup script
-local setup_script = vim.fn.stdpath("config") .. "/scripts/init.sh"
-os.execute(setup_script)

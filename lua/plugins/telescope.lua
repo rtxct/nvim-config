@@ -55,7 +55,6 @@ local M = {
 
 		require("telescope").load_extension("noice")
 		require("telescope").load_extension("undo")
-		require("telescope").load_extension("projects")
 
 		telescope.setup(opts)
 	end,

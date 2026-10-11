@@ -2,11 +2,23 @@ local M = {
 	plugins = {
 		"java-test",
 		"java-debug-adapter",
+
 		"shfmt",
+		"stylua",
+
+		"google-java-format",
+
+		"prettierd",
+		"prettier",
+
+		"yamlfmt",
+		"sql-formatter",
+		"djlint",
+		"eslint_d",
 	},
+
 	lsp = {
 		"lua_ls",
-		"stylua",
 		"bashls",
 
 		"html",
@@ -15,11 +27,13 @@ local M = {
 
 		"ts_ls",
 		"jdtls",
-		"bashls",
+		"ruff",
+		"pyright",
 
+		"qmlls",
 		"jsonls",
-		"lemminx",
 		"yamlls",
+
 		"dockerls",
 		"docker_compose_language_service",
 	},
