@@ -5,7 +5,18 @@ A modular Neovim configuration built around Lazy.nvim, with support for LSP, DAP
 <br>
 
 <div align="center">
- <img src="./content/demo.gif" alt="demo">
+  <img src="./content/demo.gif" alt="demo">
+
+  <br> 
+  <br>
+
+   <a href="https://buymeacoffee.com/rtxct">
+    <img
+      src="https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-black.svg"
+      alt="Buy Me a Coffee"
+      width="200"
+    />
+  </a>
 </div>
 
 <br>
